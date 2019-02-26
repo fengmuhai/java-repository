@@ -22,7 +22,7 @@ ArrayList继承自AbstractList，实现了List、RandomAccess、Cloneable、java
 
 2.构造方法
 ----------------------
-`
+```
 //默认构造方法
 ArrayList();
 
@@ -32,5 +32,4 @@ ArrayList(int capacity);
 
 //创建一个包含collection的ArrayList
 ArrayList(Collection<? extends E> collection);
-
-`
+```
