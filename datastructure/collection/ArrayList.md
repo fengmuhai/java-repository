@@ -20,3 +20,17 @@ ArrayList继承自AbstractList，实现了List、RandomAccess、Cloneable、java
 ![image](https://github.com/fengmuhai/JavaRepository/blob/master/datastructure/collection/images/arraylist.png)
 
 
+2.构造方法
+----------------------
+`
+//默认构造方法
+ArrayList();
+
+//指定ArrayList容量大小，当添加数据导致容量不足时，扩容为原来的1.5倍，ArrayList使用的是一种延迟分配空间的动态扩容机制。
+//比如：初始容量为10，要插入12个，那么在插入第11个元素时会将数组容量变为：10*1.5=15，之后可继续插入；如果要插入20个元素，那么插入11元素时扩容为15，插入第16个元素时，才扩容为15*15=22。
+ArrayList(int capacity);
+
+//创建一个包含collection的ArrayList
+ArrayList(Collection<? extends E> collection);
+
+`
