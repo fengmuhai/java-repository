@@ -30,7 +30,9 @@ public class ArrayList<E> extends AbstractList<E>
         implements List<E>, RandomAccess, Cloneable, java.io.Serializable {}
 ```
 **ArrayList包含了2个重要的属性：elementData、size**
+
 1）elementData是Object[]数组类型，用来保存添加的列表元素。elementData是一个动态数组，可以通过构造函数ArrayList(capacity)指定初始大小，不指定则默认初始容量为10。elementData会根据添加的元素增加动态增长，增长方式见第3点；
+
 2）size是数组实际的大小。
 
 ![image](https://github.com/fengmuhai/JavaRepository/blob/master/datastructure/collection/images/arraylist.png)
@@ -86,3 +88,34 @@ void                 ensureCapacity(int minimumCapacity)
 void                 trimToSize()
 void                 removeRange(int fromIndex, int toIndex)
 ```
+
+
+4.ArrayList的遍历
+---------------------
+1）通过Iterator遍历
+```
+Integer value = null;
+Iterator iter = list.iterator();
+while (iter.hasNext()) {
+    value = (Integer)iter.next();
+}
+```
+
+2）通过随机访问（下标）
+```
+Integer value = null;
+int size = list.size();
+for (int i=0; i<size; i++) {
+    value = (Integer)list.get(i);        
+}
+```
+
+3）通过for循环访问
+```
+Integer value = null;
+for (Integer integ:list) {
+    value = integ;
+}
+```
+
+通过测试发现：**遍历ArrayList时，使用随机访问(即，通过索引序号访问)效率最高，而使用迭代器的效率最低！**
