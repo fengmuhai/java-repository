@@ -119,3 +119,5 @@ for (Integer integ:list) {
 ```
 
 通过测试发现：**遍历ArrayList时，使用随机访问(即，通过索引序号访问)效率最高，而使用迭代器的效率最低！**
+
+参考：https://www.cnblogs.com/skywang12345/p/3308556.html
