@@ -5,7 +5,7 @@ ArrayList简介
 ----------------------
 
 **ArrayList是一个数组列表，底层是由数组构成，相当于动态数组。 与Java的数组相比，它能够动态增长。 
-ArrayList继承自AbstractList，实现了List、RandomAccess、Cloneable、java.io.Serializable接口。
+ArrayList继承自AbstractList，实现了List、RandomAccess、Cloneable、java.io.Serializable接口。**
 
 1）ArrayList 继承了AbstractList，实现了List。它是一个数组队列，提供了相关的添加、删除、修改、遍历等功能；
 
