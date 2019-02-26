@@ -1,7 +1,9 @@
 Fail-Fast 快速失败机制
 =======================
 
-**fail-fast 机制是java集合(Collection)中的一种错误机制。**当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。
+**fail-fast 机制是java集合(Collection)中的一种错误机制。**
+
+当多个线程对同一个集合的内容进行操作时，就可能会产生fail-fast事件。
 例如：当某一个线程A通过iterator去遍历某集合如ArrayList的过程中，若该集合的内容被其他线程所改变了；那么线程A访问集合时，就会抛出**ConcurrentModificationException异常**，产生fail-fast事件。
 
 fail-fast解决办法
