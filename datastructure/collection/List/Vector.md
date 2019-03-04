@@ -808,3 +808,5 @@ public class Vector<E>
 
 7） Vector很多地方都与ArrayList实现大同小异，现在已经基本不再使用。
 
+
+参考：https://www.cnblogs.com/aflyun/p/6486964.html
