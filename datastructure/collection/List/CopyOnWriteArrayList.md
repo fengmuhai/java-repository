@@ -141,3 +141,11 @@ CopyOnWrite容器有很多优点，但是同时也存在两个问题，即**内�
 
 　　**数据一致性问题**：CopyOnWrite容器只能保证数据的最终一致性，不能保证数据的实时一致性。所以如果你希望写入的的数据，马上能读到，请不要使用CopyOnWrite容器。
   
+
+7.证明CopyOnWriteArrayList是线程安全的
+-----------------------------------
+参考：https://blog.csdn.net/linsongbin1/article/details/54581787
+
+如何证明集合是线程安全的？
+
+在多线程并发读写情况下，看是否会出现java.util.ConcurrentModificationException的异常，有则说明不是线程安全的。
