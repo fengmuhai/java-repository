@@ -16,6 +16,18 @@ HashMap简介
 
 　　我们知道，数据结构的物理存储结构只有两种：**顺序存储结构和链式存储结构**（像栈，队列，树，图等是从逻辑结构去抽象的，映射到内存中，也这两种物理组织形式），而在上面我们提到过，在数组中根据下标查找某个元素，一次定位就可以达到，哈希表利用了这种特性，哈希表的主干就是数组。
   
+继承关系图
+------------
+```
+java.lang.Object
+   ↳     java.util.AbstractMap<K, V>
+         ↳     java.util.HashMap<K, V>
+
+public class HashMap<K,V>
+    extends AbstractMap<K,V>
+    implements Map<K,V>, Cloneable, Serializable { }
+```
+  
 
 2.底层数据结构
 --------------------
@@ -90,3 +102,71 @@ void addEntry(int hash, K key, V value, int bucketIndex) {
 }
 ```
 jdk7中resize，只有当 size>=threshold并且 table中的那个槽中已经有Entry时，才会发生resize。即有可能虽然size>=threshold，但是必须等到每个槽都至少有一个Entry时，才会扩容。(这句话有待验证)
+
+
+4.HashMap的存储和读取
+**1）存储**
+```
+public V put(K key, V value) {
+    // HashMap允许存放null键和null值。
+    // 当key为null时，调用putForNullKey方法，将value放置在数组第一个位置。
+    if (key == null)
+        return putForNullKey(value);
+    // 根据key的keyCode重新计算hash值。
+    int hash = hash(key.hashCode());
+    // 搜索指定hash值在对应table中的索引。
+    int i = indexFor(hash, table.length);
+    // 如果 i 索引处的 Entry 不为 null，通过循环不断遍历 e 元素的下一个元素。
+    for (Entry<K,V> e = table[i]; e != null; e = e.next) {
+        Object k;
+        if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
+            // 如果发现已有该键值，则存储新的值，并返回原始值
+            V oldValue = e.value;
+            e.value = value;
+            e.recordAccess(this);
+            return oldValue;
+        }
+    }
+    // 如果i索引处的Entry为null，表明此处还没有Entry。
+    modCount++;
+    // 将key、value添加到i索引处。
+    addEntry(hash, key, value, i);
+    return null;
+}
+```
+根据hash值得到这个元素在数组中的位置（即下标），如果数组该位置上已经存放有其他元素了，那么在这个位置上的元素将以链表的形式存放，新加入的放在链头，最先加入的放在链尾。如果数组该位置上没有元素，就直接将该元素放到此数组中的该位置上。
+
+hash(int h)方法根据key的hashCode重新计算一次散列。此算法加入了高位计算，防止低位不变，高位变化时，造成的hash冲突。
+```
+1 static int hash(int h) {
+2     h ^= (h >>> 20) ^ (h >>> 12);
+3     return h ^ (h >>> 7) ^ (h >>> 4);
+4 }
+```
+我们可以看到在HashMap中要找到某个元素，需要根据key的hash值来求得对应数组中的位置。如何计算这个位置就是hash算法。前面说过HashMap的数据结构是数组和链表的结合，所以我们当然希望这个HashMap里面的元素位置尽量的分布均匀些，尽量使得每个位置上的元素数量只有一个，那么当我们用hash算法求得这个位置的时候，马上就可以知道对应位置的元素就是我们要的，而不用再去遍历链表，这样就大大优化了查询的效率。
+
+根据上面 put 方法的源代码可以看出，当程序试图将一个key-value对放入HashMap中时，程序首先根据该 key的 hashCode() 返回值决定该 Entry 的存储位置：如果两个 Entry 的 key 的 hashCode() 返回值相同，那它们的存储位置相同。如果这两个 Entry 的 key 通过 equals 比较返回 true，新添加 Entry 的 value 将覆盖集合中原有 Entry的 value，但key不会覆盖。如果这两个 Entry 的 key 通过 equals 比较返回 false，新添加的 Entry 将与集合中原有 Entry 形成 Entry 链，而且新添加的 Entry 位于 Entry 链的头部——具体说明继续看 addEntry() 方法的说明。
+
+通过这种方式就可以高效的解决HashMap的冲突问题。
+
+**2)读取**
+```
+public V get(Object key) {
+    if (key == null)
+        return getForNullKey();
+    int hash = hash(key.hashCode());
+    for (Entry<K,V> e = table[indexFor(hash, table.length)];
+        e != null;
+        e = e.next) {
+        Object k;
+        if (e.hash == hash && ((k = e.key) == key || key.equals(k)))
+            return e.value;
+    }
+    return null;
+}
+```
+
+**3）HashMap的resize**
+当hashmap中的元素越来越多的时候，碰撞的几率也就越来越高（因为数组的长度是固定的），所以为了提高查询的效率，就要对hashmap的数组进行扩容，数组扩容这个操作也会出现在ArrayList中，所以这是一个通用的操作，很多人对它的性能表示过怀疑，不过想想我们的“均摊”原理，就释然了，而在hashmap数组扩容之后，最消耗性能的点就出现了：原数组中的数据必须重新计算其在新数组中的位置，并放进去，这就是resize。
+
+    那么hashmap什么时候进行扩容呢？当hashmap中的元素个数超过数组大小*loadFactor时，就会进行数组扩容，loadFactor的默认值为0.75，也就是说，默认情况下，数组大小为16，那么当hashmap中元素个数超过16*0.75=12的时候，就把数组的大小扩展为2*16=32，即扩大一倍，然后重新计算每个元素在数组中的位置，而这是一个非常消耗性能的操作，所以如果我们已经预知hashmap中元素的个数，那么预设元素的个数能够有效的提高hashmap的性能。比如说，我们有1000个元素new HashMap(1000), 但是理论上来讲new HashMap(1024)更合适，不过上面annegu已经说过，即使是1000，hashmap也自动会将其设置为1024。 但是new HashMap(1024)还不是更合适的，因为0.75*1000 < 1000, 也就是说为了让0.75 * size > 1000, 我们必须这样new HashMap(2048)才最合适，既考虑了&的问题，也避免了resize的问题。
