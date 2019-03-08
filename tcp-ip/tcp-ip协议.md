@@ -1,5 +1,10 @@
 TCP/IP协议
 ==================
+参考：https://blog.csdn.net/qzcsu/article/details/72861891
+
+https://blog.csdn.net/qq_38950316/article/details/81087809
+
+https://www.cnblogs.com/zmlctt/p/3690998.html
 
 1.TCP协议
 ------------------
