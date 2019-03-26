@@ -1,10 +1,8 @@
-Spring Framework核心 IOC和AOP
+Spring Framework核心之IOC实现原理
 ====================
 
-一、Spring Framework IOC容器原理解析
-====================
 
-1.Spring框架的两大核心就是IOC控制反转，和AOP面向切面编程
+一、Spring框架的两大核心就是IOC控制反转，和AOP面向切面编程
 ====================
 
 控制反转
@@ -23,20 +21,23 @@ IOC容器的主要组件：BeanFactory和ApplicationContext
 **ApplicationContext**应用上下文作为容器的高级形态存在。
 
 
-2.IOC容器的初始化过程
+二、IOC容器的初始化过程
 =====================
+
 **IOC容器的初始化是有refresh()方法来启动的**，这个方法标志着IOC容器的启动。具体启动包括：**BeanDefinition和Resource的定位、载入、和注册**三个基本过程。
 
-**一、Resource定位过程：**是指BeanDefinition的定位，它有ResourceLoader通过Resource接口完成。可以理解为是容器寻找数据的过程；
+**1、Resource定位过程：**是指BeanDefinition的定位，它有ResourceLoader通过Resource接口完成。可以理解为是容器寻找数据的过程；
 
-**二、BeanDefinition载入：**把用户定义好的Bean文件转化为IOC容器内部定义的数据结构，而这个数据结果就是BeanDefinition。
+**2、BeanDefinition载入：**把用户定义好的Bean文件转化为IOC容器内部定义的数据结构，而这个数据结果就是BeanDefinition。
 
-**三、向IOC容器注册BeanDefinition：**调用BeanDefinitionRegistry接口来实现注册，把载入过程解析得到的BeanDefinition注册到IOC容器中，具体是注册到一个HashMap中，IOC容器通过这个Map来持有BeanDefinition的数据。
+**3、向IOC容器注册BeanDefinition：**调用BeanDefinitionRegistry接口来实现注册，把载入过程解析得到的BeanDefinition注册到IOC容器中，具体是注册到一个HashMap中，IOC容器通过这个Map来持有BeanDefinition的数据。
 
 **注意：初始化过程一般不包括依赖注入，在Spring Ioc中，Bean定义的载入和依赖注入是两个独立的过程。依赖注入一般发生在第一次通过getBean()向容器获取Bean的时候。但是如果指定了Bean的lazyinit属性，那么这个Bean的依赖注入在IOC容器初始化的时候就已经完成了。**
 
 
-初始化过程：以FileSystemXmlApplicationContext为例解析
+1.BeanDefinition的Resource定位
+=====================
+以FileSystemXmlApplicationContext为例分析
 ----------------------
 1.FileSystemXmlApplicationContext实现了getResourceByPath()方法。这是一个模板方法，是为读取Resource服务的：
 
@@ -268,3 +269,86 @@ DefaultResourceLoader.class 执行Resource resource = resourceLoader.getResource
         return resource;
     }
 ```
+
+
+
+2.BeanDefinition的载入和解析
+=====================
+**在完成BeanDefinition的Resource定位分析后，下面来了解BeanDefinition的信息载入过程。对IOC容器来说，这个载入过程就是对BeanDefinition的定义转化成Spring的内部数据结构的过程，这些信息保存在一个ConcurrentHashMap中。依赖注入就是通过这些数据结构信息来完成的。**
+
+前面分析过BeanFactory的初始化过程，是从AbstractApplicationContext类中的refresh()开始的。BeanDefinition的入口也是在这里，具体是从AbstractRefreshableApplicationContext类的refreshBeanFactory()方法开始，如果创建IOC容器前，如果已经存在容器，那么需要把Beans和容器销毁，再创建新的，类似于计算机的重启。
+```
+    protected final void refreshBeanFactory() throws BeansException {
+        if (this.hasBeanFactory()) {
+            this.destroyBeans();
+            this.closeBeanFactory();
+        }
+
+        try {
+            DefaultListableBeanFactory beanFactory = this.createBeanFactory();
+            beanFactory.setSerializationId(this.getId());
+            this.customizeBeanFactory(beanFactory);
+            //这里是重点
+            this.loadBeanDefinitions(beanFactory);
+            Object var2 = this.beanFactoryMonitor;
+            synchronized(this.beanFactoryMonitor) {
+                this.beanFactory = beanFactory;
+            }
+        } catch (IOException var5) {
+            throw new ApplicationContextException("I/O error parsing bean definition source for " + this.getDisplayName(), var5);
+        }
+    }
+```
+载入过程在loadBeanDefinitions()方法开始
+---------------------
+**AbstractXmlApplicationContext.class**
+
+```
+    protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+        XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
+        beanDefinitionReader.setEnvironment(this.getEnvironment());
+        beanDefinitionReader.setResourceLoader(this);
+        beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
+        this.initBeanDefinitionReader(beanDefinitionReader);
+        this.loadBeanDefinitions(beanDefinitionReader);
+    }
+
+
+```
+
+得到BeanDefinition信息的Resource的定位后，调用XmlBeanDefinitionReader来读取，**具体载入过程是委托给BeanDefinitionReader来完成的**。
+
+因为BeanDefinition是通过XML来定义，所以使用XmlBeanDefinitionReader来载入BeanDefinition到容器中：
+```
+    protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+        Resource[] configResources = this.getConfigResources();
+        if (configResources != null) {
+            reader.loadBeanDefinitions(configResources);
+        }
+
+        String[] configLocations = this.getConfigLocations();
+        if (configLocations != null) {
+            reader.loadBeanDefinitions(configLocations);
+        }
+
+    }
+```
+
+```
+    public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
+        Assert.notNull(resources, "Resource array must not be null");
+        int count = 0;
+        Resource[] var3 = resources;
+        int var4 = resources.length;
+
+        for(int var5 = 0; var5 < var4; ++var5) {
+            Resource resource = var3[var5];
+            count += this.loadBeanDefinitions((Resource)resource);
+        }
+
+        return count;
+    }
+
+```
+
+
