@@ -6,7 +6,7 @@ Servlet基础知识和原理
 
 Servlet就是遵循Servlet开发的一个Java类，它运行在服务端，由服务器调用。
 
-![Servlet请求图示](https://note.youdao.com/yws/api/personal/file/WEB7c4ac52c46ca27f4847c43aa13bb2d54?method=getImage&version=2872&cstk=YFzyk_GM)
+![Servlet请求图示](https://note.youdao.com/yws/api/personal/file/WEB7c4ac52c46ca27f4847c43aa13bb2d54?method=download&shareKey=35ff81b00bdb9e9b54a26863faa500af)
 
 ### 2.Servlet运行容器
 要理解 Servlet 必须要先把 Servlet 容器说清楚，Servlet 与 Servlet 容器的关系有点像枪和子弹的关系，枪是为子弹而生，而子弹又让枪有了杀伤力。虽然它们是彼此依存的，但是又相互独立发展，这一切都是为了适应工业化生产的结果。从技术角度来说是为了解耦，通过标准化接口来相互协作。
