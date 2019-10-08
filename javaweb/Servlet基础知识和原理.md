@@ -36,7 +36,7 @@ reloadable="true" />
 Tomcat7 也开始支持嵌入式功能，增加了一个启动类 org.apache.catalina.startup.Tomcat。创建一个实例对象并调用 start 方法就可以很容易启动 Tomcat，我们还可以通过这个对象来增加和修改 Tomcat 的配置参数，如可以动态增加 Context、Servlet 等。下面我们就利用这个 Tomcat 类来管理新增的一个 Context 容器，我们就选择 Tomcat7 自带的 examples Web 工程，并看看它是如何加到这个 Context 容器中的。
 
 清单 2 . 给 Tomcat 增加一个 Web 工程
-```
+```java
 Tomcat tomcat = getTomcatInstance(); //Tomcat tomcat = new Tomcat();
 File appDir = new File(getBuildDirectory(), "webapps/examples"); 
 tomcat.addWebapp(null, "/examples", appDir.getAbsolutePath()); 
@@ -71,4 +71,14 @@ public Context addWebapp(Host host, String url, String path) {
        return ctx; 
 }
 ```
+前面提到每个web应用对应一个Context容器，也就是 Servlet 运行时的 Servlet 容器。
+
+1.添加一个 Web 应用时将会创建一个 **StandardContext** 容器，并且给这个 Context 容器设置必要的参数，url 和 path 分别代表这个应用在 Tomcat 中的访问路径和这个应用实际的物理路径。
+
+2.其中最重要的一个配置是 ContextConfig，这个类将会负责整个 Web 应用配置的解析工作。
+
+3.最后将这个 Context 容器加到父容器 Host 中。
+
+
+接下去将会调用 Tomcat 的 start 方法启动 Tomcat，Tomcat 的启动逻辑是基于观察者模式设计的，所有的容器都会继承 Lifecycle 接口，它管理着容器的整个生命周期，所有容器的的修改和状态的改变都会由它去通知已经注册的观察者（Listener），关于这个设计模式可以参考![《 Tomcat 的系统架构与设计模式，第二部分：设计模式》](https://www.ibm.com/developerworks/cn/java/j-lo-tomcat2/)。Tomcat 启动的时序图可以用图 2 表示。
 
