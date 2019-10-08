@@ -205,6 +205,7 @@ MultipartConfigElement(
 下面是这个过程的一个完整的时序图，其中也省略了一些细节。
 
 图 4. 初始化 Servlet 的时序图
+
 ![初始化 Servlet 的时序图](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image007.jpg)
 
 
@@ -213,6 +214,7 @@ MultipartConfigElement(
 我们知道 Java Web 应用是基于 Servlet 规范运转的，那么 Servlet 本身又是如何运转的呢？为何要设计这样的体系结构。
 
 图 5.Servlet 顶层类关联图
+
 ![Servlet 顶层类关联图](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image010.jpg)
 
 **从上图可以看出 Servlet 规范就是基于这几个类运转的，与 Servlet 主动关联的是三个类，分别是 ServletConfig、ServletRequest 和 ServletResponse。**
@@ -231,6 +233,7 @@ MultipartConfigElement(
 下图是 ServletConfig 和 ServletContext 在 Tomcat 容器中的类关系图。
 
 图 6. ServletConfig 在容器中的类关联图
+
 ![ServletConfig 在容器中的类关联图](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image012.jpg)
 
 **上图可以看出 StandardWrapper 和 StandardWrapperFacade 都实现了 ServletConfig 接口，而 StandardWrapperFacade 是 StandardWrapper 门面类。所以传给 Servlet 的是 StandardWrapperFacade 对象，这个类能够保证从 StandardWrapper 中拿到 ServletConfig 所规定的数据，而又不把 ServletConfig 不关心的数据暴露给 Servlet。**
@@ -245,6 +248,7 @@ MultipartConfigElement(
 我们在创建自己的 Servlet 类时通常使用的都是 HttpServletRequest 和 HttpServletResponse，它们继承了 ServletRequest 和 ServletResponse。为何 Context 容器传过来的 ServletRequest、ServletResponse 可以被转化为 HttpServletRequest 和 HttpServletResponse 呢？
 
 图 7.Request 相关类结构图
+
 ![Request 相关类结构图](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image014.jpg)
 
 上图是 Tomcat 创建的 Request 和 Response 的类结构图。
@@ -258,6 +262,7 @@ MultipartConfigElement(
 一次请求对应的 Request 和 Response 的类转化如下图所示：
 
 图 8.Request 和 Response 的转变过程
+
 ![](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image016.jpg)
 
 
@@ -270,6 +275,7 @@ MultipartConfigElement(
 Tomcat7.0 中这件事很容易解决，因为这种映射工作有专门一个类来完成的，这个就是 org.apache.tomcat.util.http.mapper，这个类保存了 Tomcat 的 Container 容器中的所有子容器的信息，当 org.apache.catalina.connector. Request 类在进入 Container 容器之前，mapper 将会根据这次请求的 hostnane 和 contextpath 将 host 和 context 容器设置到 Request 的 mappingData 属性中。所以当 Request 进入 Container 容器之前，它要访问那个子容器这时就已经确定了。
 
 图 9.Request 的 Mapper 类关系图
+
 ![Request 的 Mapper 类关系图](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image018.jpg)
 
 可能你有疑问，mapper 中怎么会有容器的完整关系，这要回到图 2 中 19 步 MapperListener 类的初始化过程，下面是 MapperListener 的 init 方法代码 :
@@ -291,6 +297,7 @@ public void init() {
 这段代码的作用就是将 MapperListener 类作为一个监听者加到整个 Container 容器中的每个子容器中，这样只要任何一个容器发生变化，MapperListener 都将会被通知，相应的保存容器关系的 MapperListener 的 mapper 属性也会修改。for 循环中就是将 host 及下面的子容器注册到 mapper 中。
 
 图 10.Request 在容器中的路由图
+
 ![](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/image020.jpg)
 
 上图描述了一次 Request 请求是如何达到最终的 Wrapper 容器的，我们现正知道了请求是如何达到正确的 Wrapper 容器，但是请求到达最终的 Servlet 还要完成一些步骤，必须要执行 Filter 链，以及要通知你在 web.xml 中定义的 listener。
@@ -301,4 +308,4 @@ Servlet 的确已经能够帮我们完成所有的工作了，但是现在的 we
 
 参考
 --------------------
-[Servlet 工作原理解析](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/index.html)
+[《Servlet 工作原理解析》](https://www.ibm.com/developerworks/cn/java/j-lo-servlet/index.html)
