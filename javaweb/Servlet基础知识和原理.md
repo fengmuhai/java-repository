@@ -80,5 +80,5 @@ public Context addWebapp(Host host, String url, String path) {
 3.最后将这个 Context 容器加到父容器 Host 中。
 
 
-接下去将会调用 Tomcat 的 start 方法启动 Tomcat，Tomcat 的启动逻辑是基于观察者模式设计的，所有的容器都会继承 Lifecycle 接口，它管理着容器的整个生命周期，所有容器的的修改和状态的改变都会由它去通知已经注册的观察者（Listener），关于这个设计模式可以参考![《 Tomcat 的系统架构与设计模式，第二部分：设计模式》](https://www.ibm.com/developerworks/cn/java/j-lo-tomcat2/)。Tomcat 启动的时序图可以用图 2 表示。
+接下去将会调用 Tomcat 的 start 方法启动 Tomcat，Tomcat 的启动逻辑是基于观察者模式设计的，所有的容器都会继承 Lifecycle 接口，它管理着容器的整个生命周期，所有容器的的修改和状态的改变都会由它去通知已经注册的观察者（Listener），关于这个设计模式可以参考[《 Tomcat 的系统架构与设计模式，第二部分：设计模式》](https://www.ibm.com/developerworks/cn/java/j-lo-tomcat2/)。Tomcat 启动的时序图可以用图 2 表示。
 
