@@ -14,7 +14,7 @@
 
 如图所示：
 
-![](images/2-3-tree.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree.png)
 
 #### 为什么会有2-3树这种数据结构呢？是因为他的查询复杂度比平衡二叉树还高吗？
 
@@ -36,23 +36,23 @@
 
 **1.如下图所示，插入“7”，而此时节点“5”只有一个key，则直接插入即可，形成节点“5 7”。
 
-![](images/2-3-tree-insert-1.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-1.png)
 
 **2.此时如果再插入“6”，而节点“5 7”已经有2个key了，所以需要先进行分裂。
 
-![](images/2-3-tree-insert-2.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-2.png)
 
 **3.“5 7”节点与新插入的“6”分裂之后，如下图所示，
 
-![](images/2-3-tree-insert-3.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-3.png)
 
 **4.此时需要将“6”向父节点插入，而父节点“13 30”又包含2个key，则需要再次分裂，即如下图所示，“13 30”与“6”分裂成父节点为“13”，子节点为“6”跟“30”
 
-![](images/2-3-tree-insert-4.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-4.png)
 
 **5.再将节点“13”看作向父节点插入，而此时父节点“50”只有一个key，则将“13”与“50”直接合并即可，如下图所示，完成节点的插入调整，如下图所示
 
-![](images/2-3-tree-insert-5.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-5.png)
 
 
 
