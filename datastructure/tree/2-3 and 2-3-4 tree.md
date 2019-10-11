@@ -14,7 +14,7 @@
 
 如图所示：
 
-![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree.png)
 
 #### 为什么会有2-3树这种数据结构呢？是因为他的查询复杂度比平衡二叉树还高吗？
 
@@ -36,23 +36,23 @@
 
 **1.如下图所示，插入“7”，而此时节点“5”只有一个key，则直接插入即可，形成节点“5 7”。**
 
-![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-1.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-insert-1.png)
 
 **2.此时如果再插入“6”，而节点“5 7”已经有2个key了，所以需要先进行分裂。**
 
-![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-2.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-insert-2.png)
 
 **3.“5 7”节点与新插入的“6”分裂之后，如下图所示，**
 
-![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-3.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-insert-3.png)
 
 **4.此时需要将“6”向父节点插入，而父节点“13 30”又包含2个key，则需要再次分裂，即如下图所示，“13 30”与“6”分裂成父节点为“13”，子节点**为“6”跟“30”
 
-![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-4.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-insert-4.png)
 
 **5.再将节点“13”看作向父节点插入，而此时父节点“50”只有一个key，则将“13”与“50”直接合并即可，如下图所示，完成节点的插入调整，如下图所示**
 
-![](https://github.com/fengmuhai/JavaRepository/blob/master/images/2-3-tree-insert-5.png)
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-insert-5.png)
 
 
 2-3树节点的插入应该还算简单，最好是自己再去找几个2-3树的图自己手画一下插入过程，加深下印象。下面再讲2-3树节点的删除。
@@ -92,5 +92,51 @@
 
 　　　　iv.若删除的是中间节点，且右节点有2个key，则此时父节点的一个key下移，右节点的一个key上移与父节点合并，此时父节点为2个key，3个子节点，树满足2-3树，完成调整。
 
-　　　　计：i与ii删除左或右节点两种情况，中间节点1个key或2个key两种情况，兄弟节点1个key或2个key两种情况，总共 2x2x2=8 种；删除中间节点一种情况，iii与iv右节点1个key或2个key两种情况，左节点1个或2个key两种情况，总共 1x2x2=4 种； 4+8=12 种全齐，虽然场景有12种，但是处理的方式只有2种，一种是父节点下移与子节点合并，另一种是父节点下移成单独一个子节点，然后2个key的子节点上移一个key与父节点合并。
 ```
+
+#### 小结：
+i与ii删除左或右节点两种情况，中间节点1个key或2个key两种情况，兄弟节点1个key或2个key两种情况，总共 2x2x2=8 种；删除中间节点一种情况，iii与iv右节点1个key或2个key两种情况，左节点1个或2个key两种情况，总共 1x2x2=4 种； 4+8=12 种全齐，**虽然场景有12种，但是处理的方式只有2种，一种是父节点下移与子节点合并，另一种是父节点下移成单独一个子节点，然后2个key的子节点上移一个key与父节点合并。**
+
+#### 删除流程演示图
+
+**1.如下图所示，最简单的删除情况（1），待删除的节点是2个key，直接对节点的key “5” 删除即可：**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-1.png)
+
+**2.若删除节点是情况（2），如下图所示，删除“100”，而且此时“100”是非叶子节点且2个key，则找到后继节点“120”与“100”互换位置，然后删除“100”**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-2.png)
+
+**3.结果如下图所示，将问题转化为删除一个key的叶子节点，且父节点为2个key，即为情况（4），删除的节点为右节点，且中间节点为一个key，也即为情况（4）中c的i，所以此时需要将父节点的一个key下移与中间节点合并**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-3.png)
+
+**4.结果如下图所示，将父节点的一个key “120”下移，与中间节点“80”合并，最后如下右图所示，2-3树调整完成。**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-4.png)
+
+**5.再讲另外一种，情况（4）中c的iv，如下图所示，删除节点“22”，而右兄弟节点是2个key，则需要将父节点的“30”下移成中间节点，然后右兄弟的一个key“40”上移与父节点合并，**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-5.png)
+
+**6.此时情况（4）中c的iv调整结果如下右图所示，**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-6.png)
+
+**7.最后再讲一种节点删除的情况，就是满二叉树的情况，根据定义的性质，满二叉树也符合2-3树，如果当满二叉树要删除叶子节点时，是符合情况（4）中的b的，即将父节点与兄弟节点合并，此时树的层数显然不平衡，即，将合并后的节点看作被删除的当前节点，而当前节点的兄弟节点与父节点依然是都是一个key，符合情况（4）的b，将父节点与兄弟节点合并，直至树平衡
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-7.png)
+
+**8.另外，实际上节点删除的情况中（2）（3）是可以整合到一起去处理的，即，删除节点是非叶子节点，无论待删除节点的key数是多少，都用中序排序找到后继节点，然后把问题转化为删除一个key的叶子节点去处理。**
+
+备注：对于节点删除中的（4）的 b 可能没讲明白，再补充说明一下，如下图删除节点“1
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-8.png)
+
+**9.合并之后如下图所示，此时符合（4）中 c 的 ii 情况，则父节点的key“22”下移，中间节点的key“30”上移，**
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-9.png)
+
+**10.变换结果如下图所示，此时2-3树已经调整完成。这里需要注意的点是，由于之前说父子节点key的上下移对于叶子节点来说并没有子节点，但对于非叶子节点的变换是对应左旋与右旋的，所以上一步的变换，是以节点“22”做左旋操作，由父节点“降级”为子节点，而原本子节点“30”晋升为父节点，并将“30”的左子节点出让给“22”作为右子节点。
+
+![](https://github.com/fengmuhai/JavaRepository/blob/master/images/tree/2-3-tree-delete-10.png)
