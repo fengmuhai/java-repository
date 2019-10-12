@@ -5,7 +5,7 @@ RenntrantLock和Synchronized的区别.md
 
 一、基本概念
 ------------------------------
-**1.ReentrantLock 拥有Synchronized相同的并发性和内存语义。此外还多了：锁投票、定时锁等候、中断锁等候。**
+#### 1.ReentrantLock 拥有Synchronized相同的并发性和内存语义。此外还多了：锁投票、定时锁等候、中断锁等候。
 
 所以，ReentrantLock相对Synchronized多了中断的功能:
 
@@ -17,7 +17,7 @@ RenntrantLock和Synchronized的区别.md
      如果 使用ReentrantLock，如果A不释放，可以使B在等待了足够长的时间以后，中断等待，而干别的事情
 ```
 
-**2. ReentrantLock获取锁定与三种方式：**
+#### 2. ReentrantLock获取锁定与三种方式：
 
     a)  lock(),如果获取了锁立即返回；如果别的线程持有锁，当前线程则一直处于休眠状态，直到获取锁；
 
@@ -25,4 +25,16 @@ RenntrantLock和Synchronized的区别.md
 
     c)  tryLock(long timeout,TimeUnit unit)，如果获取了锁立即返回true，如果别的线程正持有锁，会等待参数给定的时间，如果获取了锁定，就返回true，如果等待超时，返回false；
 
-    d) lockInterruptibly:如果获取了锁定立即返回，如果没有获取锁定，当前线程处于休眠状态，直到锁定，或者被别的线程中断
+    d)  lockInterruptibly:如果获取了锁定立即返回，如果没有获取锁定，当前线程处于休眠状态，直到锁定，或者被别的线程中断
+
+#### 3.实现层面
+
+synchronized是在JVM层面上实现的，可以通过一些监控工具监控synchronized的锁定，在代码执行时出现异常时，JVM会自动释放锁定；
+
+ReentrantLock是通过代码实现的，不会自动释放锁；要保证锁定一定会被释放，就必须将unLock()放到finally{}中；
+
+#### 4.性能
+
+在资源竞争不激烈的情况下，Synchronized的性能要优于ReetrantLock；
+
+在资源竞争很激烈的情况下，Synchronized的性能会下降几十倍，但是ReetrantLock的性能能维持常态；
