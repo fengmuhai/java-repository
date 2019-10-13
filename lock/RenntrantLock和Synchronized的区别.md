@@ -39,7 +39,7 @@ ReentrantLock是通过代码实现的，不会自动释放锁；要保证锁定�
 
      2）在资源竞争很激烈的情况下，Synchronized的性能会下降几十倍，但是ReetrantLock的性能能维持常态；
 
-以上的说法应该是在Synchronized以前的对比，JDK6之后对Synchronized进行了大量优化，使2者性能相近，引用![](https://cloud.tencent.com/developer/article/1458822)的一段话：
+以上的说法应该是在Synchronized以前的对比，JDK6之后对Synchronized进行了大量优化，使2者性能相近，引用[Java技术栈的一篇文章](https://cloud.tencent.com/developer/article/1458822)的一段话：
 
      在Synchronized优化以前，synchronized的性能是比ReenTrantLock差很多的。
      但是自从Synchronized引入了偏向锁，轻量级锁（自旋锁）后，两者的性能就差不多了。
@@ -60,7 +60,6 @@ ReentrantLock是通过代码实现的，不会自动释放锁；要保证锁定�
 
 三、不同点
 ---------------------
-***Synchronized是Java的关键字，它从JVM层面实现了互斥锁功能；ReentrantLock是JDK1.5之后提供的API层面的互斥锁类*
 
 #### 1.实现不同
 
@@ -125,7 +124,8 @@ ReentrantLock则必须要用户去手动释放锁，如果没有主动释放锁�
 2）ReentrantLock提供了多样化的同步，比如有时间限制的同步，可以被Interrupt的同步（synchronized的同步是不能Interrupt的）等。在资源竞争不激烈的情形下，性能稍微比synchronized差点点。但是当同步非常激烈的时候，synchronized的性能一下子能下降好几十倍。而ReentrantLock确还能维持常态。**（不知道JDK6对Synchronized优化之后，在竞争激烈情况下性能也一致了？）**
 
 
-#### 总结一下ReentrantLock独有的能力：
+
+### 总结一下ReentrantLock独有的能力
 
      1.ReenTrantLock可以指定是公平锁还是非公平锁。而synchronized只能是非公平锁。所谓的公平锁就是先等待的线程先获得锁。
 
@@ -134,8 +134,132 @@ ReentrantLock则必须要用户去手动释放锁，如果没有主动释放锁�
      3.ReenTrantLock提供了一种能够中断等待锁的线程的机制，通过lock.lockInterruptibly()来实现这个机制。
      
      
+     
+
+
+
 四、Synchronized原理简述
 -------------------------
-详细原理分析请参看《深入分析synchronized实现原理》![]()
+详细原理分析请参看[《深入分析synchronized实现原理》]()
 
-Synchronized在JVM中的
+**JVM虚拟机支持Synchronized有2中不同方式的同步：方法级别的同步 和 方法内部一段指令序列的同步。**
+
+通过下面这个类编译后的方法字节码说明：
+```java
+public class JvmSynchronized {
+
+    int i = 0;
+
+    public synchronized void syncMethod() {
+        i++;
+    }
+
+    public void syncBlock() {
+        synchronized (this) {
+            i++;
+        }
+    }
+}
+```
+
+
+### 1.代码块级别的同步
+
+
+首先我们来看看同步代码块的字节码：
+```class
+public void syncBlock();
+    descriptor: ()V
+    flags: ACC_PUBLIC
+    Code:
+      stack=3, locals=3, args_size=1
+         0: aload_0
+         1: dup
+         2: astore_1
+         3: monitorenter                      // 开始进入同步代码块
+         4: aload_0
+         5: dup
+         6: getfield      #2                  // Field i:I
+         9: iconst_1
+        10: iadd
+        11: putfield      #2                  // Field i:I
+        14: aload_1
+        15: monitorexit                       // 退出同步代码块
+        16: goto          24
+        19: astore_2
+        20: aload_1
+        21: monitorexit                       // 退出同步代码块
+        22: aload_2
+        23: athrow
+        24: return
+      Exception table:
+         from    to  target type
+             4    16    19   any
+            19    22    19   any
+     //省略部分改方法的字节码
+     ...
+```
+从字节码中可知同步语句块的实现使用的是monitorenter 和 monitorexit 指令，其中monitorenter指令指向同步代码块的开始位置，monitorexit指令则指明同步代码块的结束位置。
+
+1.在执行monitorenter指令时，首先要尝试获取对象锁。如果这个对象没被锁定，或者当前线程已经拥有了那个对象锁，把锁的计算器加1；
+
+2.相应的，在执行monitorexit指令时会将锁计算器就减1，当计算器为0时，锁就被释放了。如果获取对象锁失败，那当前线程就要阻塞，直到对象锁被另一个线程释放为止。
+
+#### monitorenter ：
+
+每个对象有一个监视器锁（monitor）。当monitor被占用时就会处于锁定状态，线程执行monitorenter指令时尝试获取monitor的所有权，过程如下：
+
+     1、如果monitor的进入数为0，则该线程进入monitor，然后将进入数设置为1，该线程即为monitor的所有者。
+
+     2、如果线程已经占有该monitor，只是重新进入，则进入monitor的进入数加1.
+
+     3.如果其他线程已经占用了monitor，则该线程进入阻塞状态，直到monitor的进入数为0，再重新尝试获取monitor的所有权。
+
+#### monitorexit：
+
+执行monitorexit的线程必须是objectref所对应的monitor的所有者。
+
+指令执行时，monitor的进入数减1，如果减1后进入数为0，那线程退出monitor，不再是这个monitor的所有者。其他被这个monitor阻塞的线程可以尝试去获取这个 monitor 的所有权。
+
+
+
+
+### 2.方法级别的同步
+
+方法级的同步是隐式，即无需通过字节码指令来控制的，它实现在方法调用和返回操作之中。JVM可以从方法常量池中的方法表结构(method_info Structure) 中的 ACC_SYNCHRONIZED 访问标志区分一个方法是否同步方法。当方法调用时，调用指令将会 检查方法的 ACC_SYNCHRONIZED 访问标志是否被设置，如果设置了，执行线程将先持有monitor（虚拟机规范中用的是管程一词）， 然后再执行方法，最后再方法完成(无论是正常完成还是非正常完成)时释放monitor。在方法执行期间，执行线程持有了monitor，其他任何线程都无法再获得同一个monitor。如果一个同步方法执行期间抛 出了异常，并且在方法内部无法处理此异常，那这个同步方法所持有的monitor将在异常抛到同步方法之外时自动释放。
+
+下面看看方法级同步的代码：
+```class
+  public synchronized void syncMethod();
+    descriptor: ()V
+    flags: ACC_PUBLIC, ACC_SYNCHRONIZED
+    Code:
+      stack=3, locals=1, args_size=1
+         0: aload_0
+         1: dup
+         2: getfield      #2                  // Field i:I
+         5: iconst_1
+         6: iadd
+         7: putfield      #2                  // Field i:I
+        10: return
+      LineNumberTable:
+        line 13: 0
+        line 14: 10
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      11     0  this   Lcom/java/jvm/JvmSynchronized;
+
+```
+
+
+可以看到，方法级别的同步并没有monitorenter和monitorexit这两条指令，取得代之的确实是ACC_SYNCHRONIZED标识，该标识指明了该方法是一个同步方法，JVM通过该ACC_SYNCHRONIZED访问标志来辨别一个方法是否声明为同步方法，从而执行相应的同步调用。
+
+这便是synchronized锁在同步代码块和同步方法上实现的基本原理。同时我们还必须注意到的是在Java早期版本中，synchronized属于重量级锁，效率低下，因为**监视器锁（monitor）是依赖于底层的操作系统的Mutex Lock来实现的，而操作系统实现线程之间的切换时需要从用户态转换到核心态，这个状态之间的转换需要相对比较长的时间，时间成本相对较高，这也是为什么早期的synchronized效率低的原因**。庆幸的是在Java 6之后Java官方对从JVM层面对synchronized较大优化，所以现在的synchronized锁效率也优化得很不错了，Java 6之后，为了减少获得锁和释放锁所带来的性能消耗，引入了轻量级锁和偏向锁，接下来我们将简单了解一下Java官方在JVM层面对synchronized锁的优化。
+
+参考：
+[https://blog.csdn.net/qq_40551367/article/details/89414446](https://blog.csdn.net/qq_40551367/article/details/89414446)
+[https://blog.csdn.net/javazejian/article/details/72828483](https://blog.csdn.net/javazejian/article/details/72828483)
+
+
+5.ReentrantLock原理简述
+-------------------------
