@@ -263,3 +263,14 @@ public void syncBlock();
 
 5.ReentrantLock原理简述
 -------------------------
+
+ReentrantLock的底层实现是通过AQS来实现的，而AQS又是通过CAS+CLH队列来实现。
+
+**CLH队列：带头结点的双向非循环链表**
+
+**AbstractQueuedSynchronizer**
+
+ReentrantLock实现的前提就是AbstractQueuedSynchronizer，简称AQS，是java.util.concurrent的核心，CountDownLatch、FutureTask、Semaphore、ReentrantLock等都有一个内部类是这个抽象类的子类。
+
+ReentrantLock的详细原理会在另一篇文章《深入分析ReentrantLock实现原理》中详细说明，尽情期待！
+
