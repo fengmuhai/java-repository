@@ -261,7 +261,7 @@ public void syncBlock();
 [https://blog.csdn.net/javazejian/article/details/72828483](https://blog.csdn.net/javazejian/article/details/72828483)
 
 
-5.ReentrantLock原理简述
+五.ReentrantLock原理简述
 -------------------------
 
 ReentrantLock的底层实现是通过AQS来实现的，而AQS又是通过CAS+CLH队列来实现。
@@ -274,3 +274,26 @@ ReentrantLock实现的前提就是AbstractQueuedSynchronizer，简称AQS，是ja
 
 ReentrantLock的详细原理会在另一篇文章[《深入分析ReentrantLock底层原理》](https://github.com/fengmuhai/JavaRepository/blob/master/lock/深入分析ReentrantLock的底层原理.md)中详细说明，尽情期待！
 
+
+六、问题补充
+---------------------------
+### 1.两者唤醒线程方式+线程切换
+
+只要线程可以在30到50次自旋里拿到锁,那么Synchronized就不会升级为重量级锁,而等待的线程也就不用被挂起,我们也就少了挂起和唤醒这个上下文切换的过程开销.
+
+但如果是ReentrantLock呢?不会自旋,而是直接被挂起,这样一来,我们就很容易会多出线程上下文开销的代价.当然,你也可以使用tryLock(),但是这样又出现了一个问题,你怎么知道tryLock的时间呢?在时间范围里还好,假如超过了呢?
+
+所以,在锁被细化到如此程度上,使用Synchronized是最好的选择了.这里再补充一句,**Synchronized和ReentrantLock他们的开销差距是在释放锁时唤醒线程的数量,Synchronized是唤醒锁池里所有的线程+刚好来访问的线程,而ReentrantLock则是当前线程后进来的第一个线程+刚好来访问的线程.**
+
+如果是线程并发量不大的情况下,那么Synchronized因为自旋锁,偏向锁,轻量级锁的原因,不用将等待线程挂起,偏向锁甚至不用自旋,所以在这种情况下要比ReentrantLock高效。
+
+
+### 2.两者为什么默认都是非公平锁
+
+ReentrantLock公平和非公平锁的队列都基于锁内部维护的一个双向链表，表结点Node的值就是每一个请求当前锁的线程。
+
+公平锁则在于每次都是依次从队首取值，严格按照线程启动的顺序来执行的，不允许插队。
+
+非公平锁在等待锁的过程中， 如果有任意新的线程妄图获取锁，都是有很大的几率直接获取到锁的，允许插队。
+
+默认情况下ReentrantLock是通过非公平锁来进行同步的，包括synchronized关键字都是如此，因为这样性能会更好。因为从线程进入了RUNNABLE状态，可以执行开始，到实际线程执行是要比较久的时间的。而且，在一个锁释放之后，其他的线程会需要重新来获取锁。其中经历了持有锁的线程释放锁，其他线程从挂起恢复到RUNNABLE状态，其他线程请求锁，获得锁，线程执行，这一系列步骤。如果这个时候，存在一个线程直接请求锁，可能就避开挂起到恢复RUNNABLE状态的这段消耗，所以性能更优化
