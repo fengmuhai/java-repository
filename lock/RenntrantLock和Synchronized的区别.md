@@ -140,7 +140,7 @@ ReentrantLock则必须要用户去手动释放锁，如果没有主动释放锁�
 
 四、Synchronized原理简述
 -------------------------
-详细原理分析请参看[《深入分析synchronized底层原理》](https://github.com/fengmuhai/JavaRepository/edit/master/lock/)
+详细原理分析请参看[《深入分析synchronized底层原理》](https://github.com/fengmuhai/JavaRepository/blob/master/lock/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90synchronized%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86.md)
 
 **JVM虚拟机支持Synchronized有2中不同方式的同步：方法级别的同步 和 方法内部一段指令序列的同步。**
 
@@ -272,5 +272,5 @@ ReentrantLock的底层实现是通过AQS来实现的，而AQS又是通过CAS+CLH
 
 ReentrantLock实现的前提就是AbstractQueuedSynchronizer，简称AQS，是java.util.concurrent的核心，CountDownLatch、FutureTask、Semaphore、ReentrantLock等都有一个内部类是这个抽象类的子类。
 
-ReentrantLock的详细原理会在另一篇文章[《深入分析ReentrantLock底层原理》](https://github.com/fengmuhai/JavaRepository/edit/master/lock/)中详细说明，尽情期待！
+ReentrantLock的详细原理会在另一篇文章[《深入分析ReentrantLock底层原理》](https://github.com/fengmuhai/JavaRepository/blob/master/lock/深入分析ReentrantLock的底层原理.md)中详细说明，尽情期待！
 
