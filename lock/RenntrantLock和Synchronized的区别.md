@@ -277,6 +277,8 @@ ReentrantLock的详细原理会在另一篇文章[《深入分析ReentrantLock�
 
 六、问题补充
 ---------------------------
+参考：[https://www.cnblogs.com/fanguangdexiaoyuer/p/5313653.html](https://www.cnblogs.com/fanguangdexiaoyuer/p/5313653.html)
+
 ### 1.两者唤醒线程方式+线程切换
 
 只要线程可以在30到50次自旋里拿到锁,那么Synchronized就不会升级为重量级锁,而等待的线程也就不用被挂起,我们也就少了挂起和唤醒这个上下文切换的过程开销.
