@@ -115,7 +115,14 @@
 ![ReentrantLock方法调用过程](https://github.com/fengmuhai/JavaRepository/blob/master/images/lock/ReentrantLock%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B.png)
 
 
-二、AQS的锁实现（加锁）
+二、从Sync类探究AQS的锁实现
+--------------------------
+
+看了挺多讲ReentrantLock和AbstractQueuedSynchronizer的文章，直接就说AQS是用CLH队列来实现的，对于熟悉的人容易理解，但是对于新手来说感觉一脸懵逼，
+所以我觉得要从一个角度切入比较容易理解。就像前面第一点从ReentrantLock的使用切入一样。
+
+前面提到，ReentrantLock是委托给一个继承了AbstractQueuedSynchronizer的类Sync来实现加锁、释放锁的，那么我们看看AbstractQueuedSynchronizer是如何实现的，有哪些方法：
+
 
 AQS的锁是由一个CLH队列来实现的。
 
