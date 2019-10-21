@@ -26,11 +26,11 @@ IOC容器的主要组件：BeanFactory和ApplicationContext
 
 **IOC容器的初始化是有refresh()方法来启动的**，这个方法标志着IOC容器的启动。具体启动包括：**BeanDefinition和Resource的定位、载入、和注册**三个基本过程。
 
-**1、Resource定位过程：**是指BeanDefinition的定位，它有ResourceLoader通过Resource接口完成。可以理解为是容器寻找数据的过程；
+**1、Resource定位过程：** 是指BeanDefinition的定位，它有ResourceLoader通过Resource接口完成。可以理解为是容器寻找数据的过程；
 
-**2、BeanDefinition载入：**把用户定义好的Bean文件转化为IOC容器内部定义的数据结构，而这个数据结果就是BeanDefinition。
+**2、BeanDefinition载入：** 把用户定义好的Bean文件转化为IOC容器内部定义的数据结构，而这个数据结果就是BeanDefinition。
 
-**3、向IOC容器注册BeanDefinition：**调用BeanDefinitionRegistry接口来实现注册，把载入过程解析得到的BeanDefinition注册到IOC容器中，具体是注册到一个HashMap中，IOC容器通过这个Map来持有BeanDefinition的数据。
+**3、向IOC容器注册BeanDefinition：** 调用BeanDefinitionRegistry接口来实现注册，把载入过程解析得到的BeanDefinition注册到IOC容器中，具体是注册到一个HashMap中，IOC容器通过这个Map来持有BeanDefinition的数据。
 
 **注意：初始化过程一般不包括依赖注入，在Spring Ioc中，Bean定义的载入和依赖注入是两个独立的过程。依赖注入一般发生在第一次通过getBean()向容器获取Bean的时候。但是如果指定了Bean的lazyinit属性，那么这个Bean的依赖注入在IOC容器初始化的时候就已经完成了。**
 
